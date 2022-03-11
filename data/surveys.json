@@ -1,0 +1,55 @@
+{
+  "surveys": [
+    {
+      "title": "survey 1",
+      "status": "draft",
+      "description": "this is a survey",
+      "expireDate": "2022-12-31",
+      "questions": [
+        {
+          "type": "dropdown",
+          "question": "From which country are you ?",
+          "description": "test Description",
+          "options": [{ "option": "usa" }, { "option": "Tunisia" }, { "option": "France" }]
+        },
+        {
+          "type": "text",
+          "question": "What is Your Hobby?",
+          "description": "lorem ipsum",
+          "options": null
+        }
+      ]
+    },
+    {
+      "title": "survey 2",
+      "status": "active",
+      "description": "this is a survey num2",
+      "expireDate": "2022-12-31",
+      "questions": [
+        {
+          "type": "checkbox",
+          "question": "What are your favorite Javascript Framweworks ?",
+          "description": "test Description",
+          "options": [
+            { "option": "React" },
+            { "option": "Angular" },
+            { "option": "Vue" },
+            { "option": "Svelte" }
+          ]
+        },
+        {
+          "type": "Radio",
+          "question": "What is your favorite stack?",
+          "description": "lorem ipsum",
+          "options": [{ "option": "lamp stack" }, { "option": "mern stack" }, { "option": "pern" }]
+        },
+        {
+          "type": "textarea",
+          "question": "describe yourself",
+          "description": null,
+          "options": []
+        }
+      ]
+    }
+  ]
+}
