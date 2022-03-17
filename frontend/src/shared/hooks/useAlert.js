@@ -1,27 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 const useAlert = () => {
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState('');
-  const [alertSeverity, setAlertSeverity] = useState('');
+  const [isShown, setIsShown] = useState(false);
+  const [message, setMessage] = useState('');
+  const [severity, setSeverity] = useState('success');
 
-  const setAlert = ({ message, severity = 'success' }) => {
-    setShowAlert(true);
-    setAlertMessage(message);
-    setAlertSeverity(severity);
+  const showAlert = ({ message, severity }) => {
+    setSeverity(severity);
+    setMessage(message);
+    disableAlert();
+    setIsShown(true);
   };
 
   const disableAlert = () => {
-    setShowAlert(false);
-    setAlertMessage('');
-    setAlertSeverity('');
+    setIsShown(false);
   };
 
-  useEffect(() => {
-    if (showAlert) setTimeout(disableAlert, 500);
-  }, [showAlert]);
-
-  return { setAlert, showAlert, alertMessage, alertSeverity, disableAlert };
+  return { isShown, showAlert, disableAlert, alertInfo: { message, severity } };
 };
 
 export default useAlert;

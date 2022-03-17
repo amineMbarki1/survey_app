@@ -15,7 +15,7 @@ const AuthPage = (props) => {
   return (
     <>
       <Container maxWidth="xs" component="main">
-        {location.pathname === '/login' && <LoginForm />}
+        {location.pathname === '/login' && <LoginForm />}0
         {location.pathname === '/register' && <RegisterForm />}
       </Container>
       <Container

@@ -25,7 +25,5 @@ Survey.hasMany(Question, { onDelete: 'cascade' });
 Question.belongsTo(Survey);
 Question.hasMany(Option, { onDelete: 'cascade' });
 Option.belongsTo(Question);
-// eany(Option, { as: 'Options' });
-// Option.belongsTo(Question, { as: 'Question' });
 
 module.exports = { Survey, Question, Option };

@@ -3,6 +3,16 @@ const Joi = require('joi');
 
 const HttpError = require('../utils/httpError');
 
+//Not all Questions are allowed to have  options array (text, textarea)
+const removeOptions = (survey, ...allowedQuestionTypes) => {
+  const { questions } = survey;
+  const newQuesions = questions.map((question) =>
+    allowedQuestionTypes.includes(question.type) ? question : { ...question, options: [] }
+  );
+
+  return { ...survey, questions: newQuesions };
+};
+
 const handleValidationErrors = (error) => {
   const field = error.details[0].context.key;
   const message = error.details[0].message;
@@ -35,22 +45,25 @@ exports.validateRegistrationData = (req, res, next) => {
 };
 
 exports.validateSurveyData = (req, res, next) => {
+  req.body = removeOptions(req.body, 'radio', 'checkbox');
   const schema = Joi.object({
-    title: Joi.string().min(4).max(30).required(),
+    title: Joi.string().min(4).max(200).required(),
     status: Joi.string().valid('draft', 'active').required(),
-    description: Joi.string(),
-    expireDate: Joi.date().required(),
+    description: Joi.string().allow(''),
+    expireDate: Joi.date(),
     questions: Joi.array().items(
       Joi.object({
         type: Joi.string().valid('text', 'textarea', 'select', 'radio', 'checkbox').required(),
         question: Joi.string().required(),
-        description: Joi.string(),
+        description: Joi.string().allow(''),
         options: Joi.array().items(Joi.object({ option: Joi.string().required() })),
       })
     ),
   });
 
   const { error } = schema.validate(req.body);
+
+  console.log('Schema Validation error :', error);
 
   if (error) return next(handleValidationErrors(error));
   next();

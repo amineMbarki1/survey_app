@@ -1,9 +1,16 @@
 import axios from 'axios';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
+
+import AuthContext from '../context/authContext';
 
 axios.defaults.baseURL = 'http://localhost:5000/api';
 
 const useAxios = () => {
+  const authContext = useContext(AuthContext);
+
+  if (authContext.user && authContext.isLoggedIn)
+    axios.defaults.headers.common['Authorization'] = `Authorization ${authContext.user.token}`;
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState({});
 
@@ -13,7 +20,7 @@ const useAxios = () => {
     async ({ url = '', method = 'get', data = null, token = null, headears = null }) => {
       setLoading(true);
       try {
-        const fetchResult = await axios({ url, method, data, token, headears });
+        const fetchResult = await axios({ url, method, data, headears });
         return fetchResult;
       } catch (error) {
         setError(error);

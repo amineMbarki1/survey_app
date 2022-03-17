@@ -16,7 +16,9 @@ const authMiddleware = async (req, res, next) => {
     if (!req.user) throw new HttpError('Unauthorized access', 401);
     next();
   } catch (error) {
-    if (error.name === 'JsonWebTokenError') return next(new HttpError('Unauthorized access', 401));
+    console.log(error);
+    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError')
+      return next(new HttpError('Unauthorized access', 401));
     next(error);
   }
 };

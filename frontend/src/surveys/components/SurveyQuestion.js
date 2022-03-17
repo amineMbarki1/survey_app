@@ -1,4 +1,4 @@
-import { Typography, Paper, MenuItem, TextField, Box, Button, IconButton, Divider } from '@mui/material';
+import { Typography, Paper, MenuItem, TextField, Box, Button, IconButton } from '@mui/material';
 import {
   Close,
   Delete,
@@ -10,45 +10,74 @@ import {
 import { useFieldArray } from 'react-hook-form';
 import { useState, Fragment, useEffect } from 'react';
 
-const SurveyQuestion = ({ register, control, index, removeQuestion, watch }) => {
+const SurveyQuestion = ({ register, control, index, removeQuestion, watch, errors }) => {
   const { append, remove, fields } = useFieldArray({ name: `questions.${index}.options`, control });
   const questionType = watch(`questions.${index}.type`);
-  // State Variable that tracks the question type and render add option accordingly
-  const [renderAddOption, setRenderAddOption] = useState(false);
+  const [renderOptions, setRenderOptions] = useState(false);
+
+  const removeOptionFields = () => {
+    fields.reduceRight((_, __, i) => {
+      remove(i);
+      return null;
+    }, null);
+  };
 
   useEffect(() => {
-    setRenderAddOption(['radio', 'checkbox'].includes(questionType));
+    setRenderOptions(['checkbox', 'radio'].includes(questionType));
+    if (['text', 'textarea'].includes(questionType)) removeOptionFields();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questionType]);
 
-  const option = (
+  useEffect(() => {
+    if (renderOptions && fields.length === 0) {
+      append({ option: '' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [renderOptions]);
+
+  //JSX for Option field
+  const option = renderOptions && (
     <>
       {fields.map((field, optionIndex) => (
         <Fragment key={field.id}>
-          <Box display="flex">
+          <Box display="flex" alignItems="normal">
             <TextField
+              sx={{ width: '20rem' }}
+              variant="standard"
               placeholder={`Option #${optionIndex}`}
-              sx={{ flexGrow: 1 }}
-              {...register(`questions.${index}.options.${optionIndex}.option`)}
+              {...register(`questions.${index}.options.${optionIndex}.option`, {
+                required: 'This Option is required',
+              })}
               size="small"
+              error={!!errors.questions?.[index]?.options?.[optionIndex]?.option}
+              helperText={errors.questions?.[index]?.options?.[optionIndex]?.option?.message}
             />
-            <IconButton onClick={() => remove(optionIndex)}>
-              <Close />
-            </IconButton>
+            {optionIndex !== 0 && (
+              <IconButton sx={{ marginLeft: 2 }} onClick={() => remove(optionIndex)}>
+                <Close />
+              </IconButton>
+            )}
           </Box>
           <br />
         </Fragment>
       ))}
 
-      {renderAddOption && (
-        <Button onClick={() => append({ option: '' })} variant="outlined">
-          Add Option
-        </Button>
-      )}
+      <Button onClick={() => append({ option: '' })} variant="outlined">
+        Add Option
+      </Button>
     </>
   );
 
   return (
-    <Paper sx={{ mt: 2, p: 2 }}>
+    <Paper
+      sx={{
+        alignItems: 'center',
+        mt: 2,
+        p: 2,
+        borderLeft: 6,
+        borderColor: (theme) => theme.palette.primary.main,
+      }}
+    >
       <Box display="flex" gap={4} alignItems="baseline" mb={2}>
         <Typography>Question #{index}</Typography>
         <TextField
@@ -74,8 +103,21 @@ const SurveyQuestion = ({ register, control, index, removeQuestion, watch }) => 
             Single Choice
           </MenuItem>
         </TextField>
+
+        {index !== 0 && (
+          <IconButton sx={{ marginLeft: 'auto' }} onClick={() => removeQuestion(index)} color="error">
+            <Delete />
+          </IconButton>
+        )}
       </Box>
-      <TextField {...register(`questions.${index}.question`)} fullWidth size="small" label="Question" />
+      <TextField
+        {...register(`questions.${index}.question`, { required: 'Question Title is required' })}
+        helperText={errors.questions && errors.questions[index]?.question?.message}
+        error={!!errors.questions && !!errors.questions[index]?.question}
+        fullWidth
+        size="small"
+        label="Question"
+      />
       <TextField
         sx={{ mt: 2, mb: 2 }}
         fullWidth
@@ -85,13 +127,7 @@ const SurveyQuestion = ({ register, control, index, removeQuestion, watch }) => 
         label="Question Description (optional)..."
         {...register(`questions.${index}.description`)}
       />
-
       {option}
-
-      <Divider sx={{ mt: 2 }} />
-      <IconButton onClick={() => removeQuestion(index)} color="error">
-        <Delete />
-      </IconButton>
     </Paper>
   );
 };
